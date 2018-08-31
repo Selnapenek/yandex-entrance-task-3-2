@@ -172,9 +172,8 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
             break;
     }
 
-    //TODO: Определить возможна ли вставка в такой промежуток времени исходя из максимальной мощности
     // Удаляем варианты при максимальной потребляемая мощности.
-    /*let tmpHoursPower = hoursPower.slice();
+    let tmpHoursPower = hoursPower.slice();
     let deleteInterval = new Array();
     for(let i = 0; i < interval.length; i++){
         let tmpHoursPower2 =  tmpHoursPower.splice(interval[i], hours);
@@ -186,7 +185,7 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
     for(let i = 0; i < deleteInterval.length; i++){
         interval.splice(deleteInterval[i], 1);
         value.splice(deleteInterval[i], 1);
-    }*/
+    }
 
     // Находим выгодный вариант
     let minCash = Math.min.apply(null, value);
