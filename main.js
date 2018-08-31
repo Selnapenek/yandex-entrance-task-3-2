@@ -1,5 +1,5 @@
 
-function calculatElectricityConsumedСost (jsonObj) {
+export default function calculatElectricityConsumedСost (jsonObj) {
     // Входные данные
     let devices = jsonObj["devices"];
     let rates = jsonObj["rates"];
@@ -52,17 +52,37 @@ function calculatElectricityConsumedСost (jsonObj) {
             schedule[i].push(item.id);
             hoursPower[i]+= devicePower;
         }
-        //TODO:
-        // суммарная стоимость потребления прибора
-       /* energySum = hoursRates.reduce( (sum, current) => {
-            return sum + current ;
-        });
-        consumedEnergy.push({ "item.id+": energySum });*/
 
+        // суммарная стоимость потребления прибора
+        energySum = hoursRates.reduce( (sum = 0, current = 0, index = 0) => {
+            return schedule[index].indexOf(item.id) >= 0 ? sum + current * devicePower *0.001  : sum + 0 ;
+        }, 0);
+
+        // Округлим до 4-ех знаков после запятой
+        energySum = Math.round(energySum * 10000) / 10000;
+
+        consumedEnergy.push( {'id': item.id, 'energySum' : energySum });
     });
 
-    //TODO: to JSON
-    return schedule;
+    // Перегоним результат в JSON
+    let result = {
+        schedule: {},
+        consumedEnergy: {
+            value: 0,
+            devices: {}
+        }
+    };
+
+    schedule.forEach((item, index) => {
+        result.schedule[index] = item;
+    });
+
+    consumedEnergy.forEach( (item) => {
+        result.consumedEnergy.value += item.energySum;
+        result.consumedEnergy.devices[item.id] = item.energySum;
+    } );
+
+    return result;
 }
 
 function compareRates(a, b) {
