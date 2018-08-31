@@ -146,17 +146,7 @@ function findCheaper(hours, hoursRates, mode, devicePower, hoursPower, maxPower)
             // Проходимся по комбинациям от **__ до __** {*__* - промежуточная},
             // оставляем звездочки для последующего сравнения.
             for(let i = 0; i <= offset; i++){
-                //копируем массив
-                let tmpHoursRates = hoursRates.slice();
-
-                // Убираем ** оставляем ___
-                let tmpHoursRates2 = tmpHoursRates.splice(offset-i, hours);
-
-                // Сумма потраченных денег в эти часы __
-                let cash = tmpHoursRates2.reduce( (sum, current) => {
-                    return sum + current;
-                });
-
+                let cash = getHoursRatesCash(hoursRates, offset, i, hours);
                 value.push(cash);
                 interval.push(offset-i);
             }
