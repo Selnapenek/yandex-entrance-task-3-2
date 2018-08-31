@@ -1,5 +1,5 @@
 
-export default function calculatElectricityConsumedСost (jsonObj) {
+function calculatElectricityConsumedСost (jsonObj) {
     // Входные данные
     let devices = jsonObj["devices"];
     let rates = jsonObj["rates"];
@@ -46,7 +46,7 @@ export default function calculatElectricityConsumedСost (jsonObj) {
         let energySum = 0;
         
         // Найдем дешевый период
-        let from = findCheper(deviceWorkTime, hoursRates, deviceMode, devicePower, hoursPower, maxPower);
+        let from = findCheaper(deviceWorkTime, hoursRates, deviceMode, devicePower, hoursPower, maxPower);
         // Добавим в расписание и потребляемую мощность
         for(let i = from; i < from + deviceWorkTime ; i++){
             schedule[i].push(item.id);
@@ -102,7 +102,7 @@ function compareWorkTime(a, b) {
     return a.duration - b.duration;
 }
 
-function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) {
+function findCheaper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) {
     let from = 0;
     let offset = 24 - hours;
     let value = [];
@@ -120,11 +120,7 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
             tmpDay.splice(21,3);
             tmpDay.splice(0,7);
             for(let i = 0; i <= offset ; i++){
-                let tmpHoursRates = tmpDay.slice();
-                let tmpHoursRates2 = tmpHoursRates.splice(offset-i, hours);
-                let cash = tmpHoursRates2.reduce( (sum, current) => {
-                    return sum + current;
-                });
+                let cash = getHoursRatesCash(hoursRates, offset, i, hours);
                 value.push(cash);
                 interval.push(offset-i+7);
             }
@@ -144,11 +140,7 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
                 tmpNight2.splice(0,7);
                 offset-=7;
                 for(let i = 0; i <= offset; i++){
-                    let tmpHoursRates = tmpNight.slice();
-                    let tmpHoursRates2 = tmpHoursRates.splice(offset-i, hours);
-                    let cash = tmpHoursRates2.reduce( (sum, current) => {
-                        return sum + current;
-                    });
+                    let cash = getHoursRatesCash(hoursRates, offset, i, hours);
                     value.push(cash);
                     interval.push(offset-i+21);
                 }
@@ -159,11 +151,7 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
             offset-=3;
 
             for(let i = 0; i <= offset && i + hours <= 7; i++){
-                let tmpHoursRates = tmpNight.slice();
-                let tmpHoursRates2 = tmpHoursRates.splice(offset-i, hours);
-                let cash = tmpHoursRates2.reduce( (sum, current) => {
-                    return sum + current;
-                });
+                let cash = getHoursRatesCash(hoursRates, offset, i, hours);
                 value.push(cash);
                 interval.push(offset-i);
             }
@@ -175,17 +163,7 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
             // Проходимся по комбинациям от **__ до __** {*__* - промежуточная},
             // оставляем звездочки для последующего сравнения.
             for(let i = 0; i <= offset; i++){
-                //копируем массив
-                let tmpHoursRates = hoursRates.slice();
-
-                // Убираем ** оставляем ___
-                let tmpHoursRates2 = tmpHoursRates.splice(offset-i, hours);
-
-                // Сумма потраченных денег в эти часы __
-                let cash = tmpHoursRates2.reduce( (sum, current) => {
-                    return sum + current;
-                });
-
+                let cash = getHoursRatesCash(hoursRates, offset, i, hours);
                 value.push(cash);
                 interval.push(offset-i);
             }
@@ -215,3 +193,22 @@ function findCheper(hours, hoursRates, mode, devicePower, hoursPower, maxPower) 
     return from;
 }
 
+function getHoursRatesCash(hoursRates, offset, index, hours) {
+    //копируем массив
+    let tmpHoursRates = hoursRates.slice();
+
+    // Убираем ** оставляем ___
+    let tmpHoursRates2 = tmpHoursRates.splice(offset-index, hours);
+
+    // Сумма потраченных денег в эти часы **
+    let cash = tmpHoursRates2.reduce( (sum, current) => {
+        return sum + current;
+    });
+
+    return cash;
+}
+
+
+let json = require('./input.json');
+
+console.log( calculatElectricityConsumedСost(json) );
